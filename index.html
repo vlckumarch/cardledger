@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#111827">
+<title>CardLedger — Credit Card Tracker</title>
+<style>
+:root{--bg:#f4f6fb;--panel:#fff;--ink:#182230;--muted:#667085;--line:#e5e9f0;--accent:#4f46e5;--accent2:#eef2ff;--green:#067647;--red:#b42318;--amber:#b54708;--shadow:0 8px 28px rgba(16,24,40,.06)}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+button,input,select{font:inherit}button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;font-weight:650}.primary{background:var(--accent);color:white}.secondary{background:#eef0f5;color:#273244}.danger{background:#fff0ef;color:var(--red)}.small{padding:6px 9px;font-size:12px}
+header{background:#111827;color:#fff;padding:24px max(20px,calc((100vw - 1180px)/2));display:flex;justify-content:space-between;align-items:center;gap:18px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;border-radius:13px;background:#6366f1;display:grid;place-items:center;font-size:22px}.brand h1{margin:0;font-size:22px;letter-spacing:-.5px}.brand p{margin:2px 0 0;color:#b9c1d0;font-size:13px}.header-actions{display:flex;gap:8px;flex-wrap:wrap}.header-actions button{background:#273244;color:#fff}
+main{max-width:1180px;margin:26px auto;padding:0 20px 50px}.notice{border:1px solid #d9e1ff;background:#f0f4ff;color:#3445a5;border-radius:12px;padding:12px 15px;margin-bottom:20px;font-size:13px}
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px;margin-bottom:20px}.metric,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow)}.metric{padding:18px}.metric .label{font-size:12px;color:var(--muted);font-weight:650;text-transform:uppercase;letter-spacing:.5px}.metric .value{font-size:26px;font-weight:780;letter-spacing:-.8px;margin-top:8px}.metric .sub{font-size:12px;color:var(--muted);margin-top:3px}
+.layout{display:grid;grid-template-columns:360px minmax(0,1fr);gap:18px;align-items:start}.panel{padding:20px;margin-bottom:18px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}.panel h2{font-size:17px;margin:0;letter-spacing:-.3px}.panel p.hint{font-size:12px;color:var(--muted);margin:4px 0 0}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:13px}.field label{font-size:12px;font-weight:700;color:#475467}.field input,.field select{width:100%;border:1px solid #d0d5dd;border-radius:9px;padding:10px 11px;background:#fff;color:var(--ink);outline:none}.field input:focus,.field select:focus{border-color:#818cf8;box-shadow:0 0 0 3px #e0e7ff}.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.form-actions{display:flex;gap:8px;flex-wrap:wrap}.form-actions button{flex:1}
+.card-list{display:flex;flex-direction:column;gap:9px}.card-item{border:1px solid var(--line);border-radius:11px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px}.card-name{font-weight:700}.card-meta{font-size:12px;color:var(--muted);margin-top:2px}.pill{display:inline-block;padding:4px 8px;border-radius:999px;font-size:11px;font-weight:750}.pill.paid{background:#ecfdf3;color:var(--green)}.pill.pending{background:#fff4e5;color:var(--amber)}.pill.overdue{background:#fef3f2;color:var(--red)}
+.filters{display:flex;gap:8px;flex-wrap:wrap}.filters select,.filters input{border:1px solid #d0d5dd;border-radius:9px;padding:8px 10px;background:#fff;max-width:100%}
+.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:740px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid var(--line);font-size:13px}th{color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.4px;background:#fafbfc}td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}td strong{font-weight:750}.actions{display:flex;gap:5px;justify-content:flex-end}.empty{text-align:center;padding:30px 12px;color:var(--muted);font-size:13px}
+.year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.year-card{border:1px solid var(--line);border-radius:12px;padding:14px}.year-card .year{font-size:12px;color:var(--muted);font-weight:700}.year-card .amount{font-size:19px;font-weight:800;margin-top:5px}.year-card .count{font-size:11px;color:var(--muted);margin-top:3px}
+.month-bars{display:flex;flex-direction:column;gap:10px}.bar-row{display:grid;grid-template-columns:45px minmax(30px,1fr) 110px;gap:10px;align-items:center;font-size:12px}.bar-track{height:9px;border-radius:99px;background:#eef0f5;overflow:hidden}.bar{height:100%;border-radius:99px;background:var(--accent)}.bar-amount{text-align:right;font-variant-numeric:tabular-nums;color:#475467}
+footer{font-size:12px;color:var(--muted);text-align:center;margin-top:10px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,minmax(0,1fr))}.year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:520px){main{padding:0 12px 30px;margin-top:16px}header{padding:18px 14px}.metrics{gap:8px}.metric{padding:13px}.metric .value{font-size:21px}.panel{padding:15px}.two{grid-template-columns:1fr}.year-grid{grid-template-columns:1fr 1fr}.header-actions{width:100%}.header-actions button{flex:1}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">▤</div><div><h1>CardLedger</h1><p>All your card bills, in one clear view</p></div></div>
+  <div class="header-actions"><button id="exportCsv">Export CSV</button><button id="backupJson">Backup data</button><button id="restoreBtn">Restore backup</button><input type="file" id="restoreFile" accept=".json,application/json" hidden></div>
+</header>
+<main>
+  <div class="notice">🔒 Your entries are saved in this browser only (local storage). This app does not connect to your bank or upload your financial data. Export a backup regularly, especially before clearing browser data.</div>
+  <section class="metrics">
+    <div class="metric"><div class="label">Total spent · all time</div><div class="value" id="allTime">₹0</div><div class="sub" id="allTimeSub">Across all recorded bills</div></div>
+    <div class="metric"><div class="label">Spent · YTD</div><div class="value" id="ytd">₹0</div><div class="sub" id="ytdSub">January to today</div></div>
+    <div class="metric"><div class="label">Amount to pay · this month</div><div class="value" id="monthDue">₹0</div><div class="sub" id="monthDueSub">Across all cards</div></div>
+    <div class="metric"><div class="label">Unpaid bills</div><div class="value" id="unpaid">₹0</div><div class="sub" id="unpaidSub">Outstanding recorded payments</div></div>
+  </section>
+  <div class="layout">
+    <aside>
+      <section class="panel">
+        <div class="panel-head"><div><h2 id="formTitle">Add monthly bill</h2><p class="hint">One record per card statement/month</p></div></div>
+        <form id="billForm">
+          <div class="field"><label for="cardName">Credit card name *</label><input id="cardName" required maxlength="70" placeholder="e.g. ICICI Rubyx"></div>
+          <div class="two">
+            <div class="field"><label for="statementMonth">Statement month *</label><input id="statementMonth" type="month" required></div>
+            <div class="field"><label for="paymentDate">Payment due date *</label><input id="paymentDate" type="date" required></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="spent">Amount spent (₹) *</label><input id="spent" type="number" min="0" step="0.01" required placeholder="0.00"></div>
+            <div class="field"><label for="payable">Amount to pay (₹) *</label><input id="payable" type="number" min="0" step="0.01" required placeholder="0.00"></div>
+          </div>
+          <div class="two">
+            <div class="field"><label for="status">Payment status</label><select id="status"><option value="unpaid">Unpaid</option><option value="paid">Paid</option></select></div>
+            <div class="field"><label for="paidDate">Date paid (optional)</label><input id="paidDate" type="date"></div>
+          </div>
+          <div class="field"><label for="notes">Notes (optional)</label><input id="notes" maxlength="160" placeholder="e.g. Paid minimum due, refund, etc."></div>
+          <div class="form-actions"><button class="primary" type="submit" id="saveBtn">Save bill</button><button class="secondary" type="button" id="cancelEdit" hidden>Cancel edit</button></div>
+        </form>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>Cards tracked</h2><p class="hint">Unique card names in your records</p></div></div>
+        <div class="card-list" id="cardList"><div class="empty">No cards yet. Add your first monthly bill.</div></div>
+      </section>
+    </aside>
+    <div>
+      <section class="panel">
+        <div class="panel-head"><div><h2>Monthly spending</h2><p class="hint" id="monthChartHint">Spending by statement month</p></div><select id="chartYear" aria-label="Chart year"></select></div>
+        <div class="month-bars" id="monthBars"></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>Yearly summary</h2><p class="hint">Total spending by calendar year, including previous years</p></div></div>
+        <div class="year-grid" id="yearGrid"><div class="empty">Your yearly totals will appear here.</div></div>
+      </section>
+      <section class="panel">
+        <div class="panel-head"><div><h2>Monthly bills</h2><p class="hint">Filter, edit, or delete a bill record</p></div></div>
+        <div class="filters" style="margin-bottom:14px">
+          <select id="filterYear" aria-label="Filter by year"></select>
+          <select id="filterCard" aria-label="Filter by card"><option value="">All cards</option></select>
+          <select id="filterStatus" aria-label="Filter by payment status"><option value="">All statuses</option><option value="paid">Paid</option><option value="unpaid">Unpaid</option></select>
+          <input id="search" type="search" placeholder="Search notes or card" aria-label="Search bills">
+          <button class="secondary small" id="clearFilters" type="button">Clear filters</button>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Card / statement</th><th>Due date</th><th class="num">Spent</th><th class="num">To pay</th><th>Status</th><th>Actions</th></tr></thead><tbody id="billRows"></tbody></table></div>
+        <div id="tableEmpty" class="empty" hidden>No bills match these filters.</div>
+      </section>
+    </div>
+  </div>
+  <footer>CardLedger · Personal tracking only · Amounts shown in Indian rupees (₹)</footer>
+</main>
+<script>
+(() => {
+  const KEY = "cardledger-bills-v1";
+  const $ = id => document.getElementById(id);
+  let bills = load();
+  let editingId = null;
+  const today = new Date();
+  const currentMonth = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,"0")}`;
+  $("statementMonth").value = currentMonth;
+  $("paymentDate").value = `${currentMonth}-${String(Math.min(today.getDate(),28)).padStart(2,"0")}`;
+  $("chartYear").value = String(today.getFullYear());
+
+  function load(){ try { const x=JSON.parse(localStorage.getItem(KEY)||"[]"); return Array.isArray(x)?x:[]; } catch { return []; } }
+  function persist(){ localStorage.setItem(KEY,JSON.stringify(bills)); render(); }
+  function money(n){ return new Intl.NumberFormat("en-IN",{style:"currency",currency:"INR",maximumFractionDigits:2}).format(Number(n)||0); }
+  function uid(){ return (crypto.randomUUID ? crypto.randomUUID() : Date.now()+"-"+Math.random().toString(16).slice(2)); }
+  function safe(s){ return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+  function yearOf(b){ return Number((b.month||"").slice(0,4)); }
+  function monthLabel(m){ if(!m)return ""; const [y,mo]=m.split("-").map(Number); return new Date(y,mo-1,1).toLocaleDateString("en-IN",{month:"short",year:"numeric"}); }
+  function duePill(b){ if(b.status==="paid")return '<span class="pill paid">Paid</span>'; if(b.dueDate && b.dueDate < today.toISOString().slice(0,10)) return '<span class="pill overdue">Overdue</span>'; return '<span class="pill pending">Unpaid</span>'; }
+  function uniqueYears(){ return [...new Set([today.getFullYear(),...bills.map(yearOf).filter(Boolean)])].sort((a,b)=>b-a); }
+  function fillSelect(id, options, allLabel){ const el=$(id), old=el.value; el.innerHTML=(allLabel?`<option value="">${allLabel}</option>`:"")+options.map(o=>`<option value="${safe(o.value)}">${safe(o.label)}</option>`).join(""); if(options.some(o=>String(o.value)===old))el.value=old; }
+  function render(){
+    const y=today.getFullYear(), m=currentMonth;
+    const total=bills.reduce((s,b)=>s+Number(b.spent||0),0);
+    const ytd=bills.filter(b=>yearOf(b)===y && b.month<=m).reduce((s,b)=>s+Number(b.spent||0),0);
+    const monthBills=bills.filter(b=>b.month===m);
+    const monthPay=monthBills.reduce((s,b)=>s+Number(b.payable||0),0);
+    const unpaid=bills.filter(b=>b.status!=="paid").reduce((s,b)=>s+Number(b.payable||0),0);
+    $("allTime").textContent=money(total); $("allTimeSub").textContent=`${bills.length} bill record${bills.length===1?"":"s"} · ${new Set(bills.map(b=>b.card.trim().toLowerCase())).size} card(s)`;
+    $("ytd").textContent=money(ytd); $("ytdSub").textContent=`Jan–${today.toLocaleDateString("en-IN",{month:"short"})} ${y}`;
+    $("monthDue").textContent=money(monthPay); $("monthDueSub").textContent=`${monthBills.length} statement${monthBills.length===1?"":"s"} for ${monthLabel(m)}`;
+    $("unpaid").textContent=money(unpaid); $("unpaidSub").textContent=`${bills.filter(b=>b.status!=="paid").length} unpaid/overdue record(s)`;
+
+    const cards=[...new Map(bills.map(b=>[b.card.trim().toLowerCase(),b.card.trim()])).values()].sort((a,b)=>a.localeCompare(b));
+    $("cardList").innerHTML=cards.length?cards.map(card=>{const c=bills.filter(b=>b.card.trim().toLowerCase()===card.toLowerCase());return `<div class="card-item"><div><div class="card-name">${safe(card)}</div><div class="card-meta">${c.length} bill(s) · spent ${money(c.reduce((s,b)=>s+Number(b.spent||0),0))}</div></div><span class="pill">${c.filter(b=>b.status==="paid").length}/${c.length} paid</span></div>`}).join(""):'<div class="empty">No cards yet. Add your first monthly bill.</div>';
+
+    const years=uniqueYears();
+    fillSelect("chartYear",years.map(v=>({value:v,label:String(v)})));
+    fillSelect("filterYear",years.map(v=>({value:v,label:String(v)})),"All years");
+    fillSelect("filterCard",cards.map(v=>({value:v,label:v})),"All cards");
+    renderChart(); renderYears(); renderTable();
+  }
+  function renderChart(){
+    const yr=Number($("chartYear").value||today.getFullYear());
+    const values=Array.from({length:12},(_,i)=>{const month=`${yr}-${String(i+1).padStart(2,"0")}`;return {label:new Date(yr,i,1).toLocaleDateString("en-IN",{month:"short"}),amount:bills.filter(b=>b.month===month).reduce((s,b)=>s+Number(b.spent||0),0)}});
+    const max=Math.max(1,...values.map(v=>v.amount));
+    $("monthBars").innerHTML=values.map(v=>`<div class="bar-row"><span>${v.label}</span><div class="bar-track"><div class="bar" style="width:${Math.max(0,v.amount/max*100)}%"></div></div><span class="bar-amount">${money(v.amount)}</span></div>`).join("");
+  }
+  function renderYears(){
+    const ys=[...new Set(bills.map(yearOf).filter(Boolean))].sort((a,b)=>b-a);
+    $("yearGrid").innerHTML=ys.length?ys.map(y=>{const arr=bills.filter(b=>yearOf(b)===y);return `<div class="year-card"><div class="year">${y}${y===today.getFullYear()?" · YTD":""}</div><div class="amount">${money(arr.reduce((s,b)=>s+Number(b.spent||0),0))}</div><div class="count">${arr.length} bill record(s) · ${new Set(arr.map(b=>b.card.toLowerCase())).size} card(s)</div></div>`}).join(""):'<div class="empty">Your yearly totals will appear here.</div>';
+  }
+  function renderTable(){
+    const fy=$("filterYear").value, fc=$("filterCard").value, fs=$("filterStatus").value, q=$("search").value.trim().toLowerCase();
+    const rows=bills.filter(b=>(!fy||String(yearOf(b))===fy)&&(!fc||b.card===fc)&&(!fs||b.status===fs)&&(!q||(b.card+" "+(b.notes||"")).toLowerCase().includes(q))).sort((a,b)=>b.month.localeCompare(a.month)||a.dueDate.localeCompare(b.dueDate));
+    $("billRows").innerHTML=rows.map(b=>`<tr><td><strong>${safe(b.card)}</strong><div class="card-meta">${safe(monthLabel(b.month))}${b.notes?` · ${safe(b.notes)}`:""}</div></td><td>${safe(b.dueDate)}${b.paidDate?`<div class="card-meta">Paid ${safe(b.paidDate)}</div>`:""}</td><td class="num">${money(b.spent)}</td><td class="num"><strong>${money(b.payable)}</strong></td><td>${duePill(b)}</td><td><div class="actions"><button class="secondary small" data-edit="${safe(b.id)}">Edit</button><button class="danger small" data-delete="${safe(b.id)}">Delete</button></div></td></tr>`).join("");
+    $("tableEmpty").hidden=rows.length>0;
+  }
+  $("billForm").addEventListener("submit",e=>{
+    e.preventDefault();
+    const item={id:editingId||uid(),card:$("cardName").value.trim(),month:$("statementMonth").value,dueDate:$("paymentDate").value,spent:Number($("spent").value),payable:Number($("payable").value),status:$("status").value,paidDate:$("paidDate").value,notes:$("notes").value.trim()};
+    if(!item.card||!item.month||!item.dueDate)return;
+    const duplicate=bills.find(b=>b.id!==editingId&&b.card.trim().toLowerCase()===item.card.toLowerCase()&&b.month===item.month);
+    if(duplicate&&!confirm("A bill for this card and statement month already exists. Save another record anyway?"))return;
+    if(editingId)bills=bills.map(b=>b.id===editingId?item:b);else bills.push(item);
+    resetForm(); persist();
+  });
+  function resetForm(){ editingId=null;$("billForm").reset();$("statementMonth").value=currentMonth;$("paymentDate").value=`${currentMonth}-${String(Math.min(today.getDate(),28)).padStart(2,"0")}`;$("formTitle").textContent="Add monthly bill";$("saveBtn").textContent="Save bill";$("cancelEdit").hidden=true; }
+  $("cancelEdit").addEventListener("click",resetForm);
+  $("billRows").addEventListener("click",e=>{
+    const edit=e.target.closest("[data-edit]")?.dataset.edit, del=e.target.closest("[data-delete]")?.dataset.delete;
+    if(edit){const b=bills.find(x=>x.id===edit);if(!b)return;editingId=b.id;$("cardName").value=b.card;$("statementMonth").value=b.month;$("paymentDate").value=b.dueDate;$("spent").value=b.spent;$("payable").value=b.payable;$("status").value=b.status;$("paidDate").value=b.paidDate||"";$("notes").value=b.notes||"";$("formTitle").textContent="Edit monthly bill";$("saveBtn").textContent="Update bill";$("cancelEdit").hidden=false;window.scrollTo({top:0,behavior:"smooth"});}
+    if(del){const b=bills.find(x=>x.id===del);if(b&&confirm(`Delete ${b.card} · ${monthLabel(b.month)}?`)){bills=bills.filter(x=>x.id!==del);if(editingId===del)resetForm();persist();}}
+  });
+  ["chartYear","filterYear","filterCard","filterStatus"].forEach(id=>$(id).addEventListener("change",()=>{if(id==="chartYear")renderChart();else renderTable();}));
+  $("search").addEventListener("input",renderTable);
+  $("clearFilters").addEventListener("click",()=>{$("filterYear").value="";$("filterCard").value="";$("filterStatus").value="";$("search").value="";renderTable();});
+  $("exportCsv").addEventListener("click",()=>{
+    const cols=["card","statement_month","payment_due_date","amount_spent_inr","amount_to_pay_inr","status","date_paid","notes"];
+    const lines=[cols.join(","),...bills.map(b=>[b.card,b.month,b.dueDate,b.spent,b.payable,b.status,b.paidDate||"",b.notes||""].map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(","))];
+    download("cardledger-bills.csv",lines.join("\r\n"),"text/csv;charset=utf-8");
+  });
+  $("backupJson").addEventListener("click",()=>download("cardledger-backup.json",JSON.stringify({app:"CardLedger",version:1,exportedAt:new Date().toISOString(),bills},null,2),"application/json"));
+  $("restoreBtn").addEventListener("click",()=>$("restoreFile").click());
+  $("restoreFile").addEventListener("change",async e=>{const file=e.target.files[0];if(!file)return;try{const data=JSON.parse(await file.text());const incoming=Array.isArray(data)?data:data.bills;if(!Array.isArray(incoming)||incoming.some(b=>!b.card||!b.month||!b.dueDate)){throw new Error("This file doesn't look like a CardLedger backup.");}if(confirm(`Restore ${incoming.length} bill record(s)? This replaces the data currently in this browser.`)){bills=incoming;persist();resetForm();alert("Backup restored.");}}catch(err){alert(err.message||"Could not read this backup file.");}finally{e.target.value="";}});
+  function download(name,content,type){const blob=new Blob([content],{type}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=name;a.click();URL.revokeObjectURL(url);}
+  render();
+})();
+</script>
+</body>
+</html>
